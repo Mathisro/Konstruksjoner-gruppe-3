@@ -1,22 +1,38 @@
-from structure_visualization import *
+from structureVisualization import *
+import numpy as np
+import Punkt
+import Last
+import Element
  
 # -----Rammeanalyse-----
 def main():
-    # -----Initialiserer figurer-----
-    fig_init, ax_init, fig_def, ax_def = setup_plots()
-     
-    # -----Til visualiseringen, velg første indeks brukt i nummerering av noder og element-----
-    # Endre gjerne selv
-    first_index = 0
+    
+    # Plotter figurer
+    # 
+    
+    fig_init, ax_init, fig_def, ax_def = setup_plots()  # Initialiserer figurer til visualiseringen
+    first_index = 0 # Første index brukt
+
+    npunkt, punkt, nelem, elem, nlast, last = lesinput() # Leser input-data
  
-    # -----Leser input-data-----
-    npunkt, punkt, nelem, elem, nlast, last = lesinput()
+    plot_structure(ax_init, punkt, elem, 1, first_index) # Plotter initalramme
  
-    # -----Plott initalramme-----
-    plot_structure(ax_init, punkt, elem, 1, first_index)
- 
-    # -----Regner ut lengder til elementene------
-    elementlengder = lengder(punkt, elem, nelem)
+    # Regner ut lengder til elementene
+    # elementlengder = lengder(punkt, elem, nelem) ## Gjøres i hvert objekt
+
+    # Initialiserer liste med alle objektene
+
+    punktOb = np.zeros(npunkt)
+    for i in range(npunkt):
+        punktOb[i] = Punkt.Punkt(i, punkt[i])
+        
+    elementOb = np.zeros(nelem)
+    for i in range(nelem):
+        elementOb[i] = Element.Element(i, elem[i])
+
+    lastOb = np.zeros(nlast)
+    for i in range(nlast):
+        lastOb[i] = Last.Last(i, last[i])
  
     # -----Fastinnspenningsmomentene------
     # Lag funksjonen selv
