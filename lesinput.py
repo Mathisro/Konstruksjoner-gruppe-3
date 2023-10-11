@@ -1,7 +1,7 @@
-def lesinput():
+def lesinput(fil):
  
     # Åpner inputfilen
-    fid = open("input.txt", "r")
+    fid = open(fil, "r")
  
     # Leser totalt antall punkt
     npunkt = int(fid.readline())       # 'fid.readline()' leser en linje, 'int(...)' gjør at linjen tolkes som et heltall
