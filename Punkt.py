@@ -7,4 +7,4 @@ class Punkt:
         self.punkt = np.array([PunktRow[0], PunktRow[1]]) # Koordinater som tupple
 #        self.x = PunktRow[0] # x-koordinat
 #        self.y = PunktRow[1] # y-koordinat
-        self.boundryVal = [2] # Grensebetingelse
+        self.boundryVal = PunktRow[2] # Grensebetingelse
