@@ -1,38 +1,100 @@
+import csv
+
 def lesinput(fil):
- 
     # Åpner inputfilen
-    fid = open(fil, "r")
- 
-    # Leser totalt antall punkt
-    npunkt = int(fid.readline())       # 'fid.readline()' leser en linje, 'int(...)' gjør at linjen tolkes som et heltall
- 
-    # LESER INN XY-KOORDINATER TIL KNUTEPUNKTENE
-    # Nodenummer tilsvarer radnummer i "Node-variabel"
-    # x-koordinat lagres i kolonne 1, y-koordinat i kolonne 2
-    # Grensebetingelse lagres i kolonne 3; 1 = fast innspent og 0 = fri rotasjon
-    punkt = np.loadtxt(fid, dtype = int, max_rows = npunkt)     # 'max_rows = npunkt' sorger for at vi bare leser
-                                                                # de 'npunkt' neste linjene i tekstfilen
- 
-    # Leser antall elementer
-    nelem = int(fid.readline())
- 
-    # Leser konnektivitet: Sammenheng mellom elementender og knutepunktnummer samt EI for elementene
-    # Elementnummer tilsvarer radnummer i "elem"-variabel
-    # Knutepunktnummer for lokal ende 1 lagres i kolonne 1
-    # Knutepunktnummer for lokal ende 2 lagres i kolonne 2
-    # Det anbefales at knutepunktnummerering starter på 0, slik at det samsvarerer med listeindeksering i Python
-    # E-modul for materiale lagres i kolonne 3
-    # Tverrsnittstype lagres i kolonne 4; I-profil = 1 og rørprofil = 2
-    elem = np.loadtxt(fid, dtype = int, max_rows = nelem)
- 
-    # Leser antall laster som virker på rammen
-    nlast = int(fid.readline())
- 
-    # Leser lastdata
-    # Bestem selv verdiene som er nødvendig å lese inn, samt hva verdiene som leses inn skal representere
-    last = np.loadtxt(fid, dtype = float, max_rows = nlast)     # <-- Forslag til innlesing av lastdata
- 
-    # Lukker input-filen
-    fid.close()
- 
-    return npunkt, punkt, nelem, elem, nlast, last
+    with open(fil) as fil:
+        csv_reader = csv.reader(fil, delimiter = ',')
+        nodearray = [] #Definerer de ulike arrayene
+        beamarray = []
+        lastarray = []
+        geoarray = []
+        geoCount = 0
+        #print("Header utført")
+        
+        
+        for row in csv_reader:
+
+           
+            if (row[0])[-5:]=='Nodes': #Leser av første linje
+                npunkt= float(row[1])
+                nlast = float(row[3])
+                print("First row reading")
+                
+            elif (row[0])[-5:]=='Beams': #Leser av andre linje
+                nelem = float(row[1])
+                ntverr = (row[3])
+                #print("second row reading")
+
+            elif (row[0]=='Node'): #Leser av alle linjer med "Node"
+                idTemp = (row[1])
+                xTemp = (row[2])
+                yTemp = (row[3])
+                fxTemp = (row[4])
+                fyTemp = (row[5])
+                mTemp = (row[6])
+                tempMatrise = [idTemp,xTemp, yTemp, fxTemp,fyTemp,mTemp]
+                nodearray.append(tempMatrise)
+                #print("Node reading")
+
+            elif (row[0]=='Beam'): #Leser av alle linjer med "Beam"
+                idTemp = (row[1])
+                node1Temp = (row[2])
+                node2Temp =(row[3])
+                geoTemp = (row[4])
+                ukjent = (row[5])
+                beamArrayTemp = [idTemp,node1Temp,node2Temp,geoTemp,ukjent]
+                beamarray.append(beamArrayTemp)
+                #print("Beam reading")
+              
+            #type: 1 hvis punktlast, 2 hvis fordelt last 
+            #intensitet
+            #startpunkt
+            #sluttpunkt, (null hvis punktlast)
+            #retning (vinkel)
+            #type fordelt last (1-7)
+            elif ((row[0])[:3]=='Pun' or (row[0])[:3]=='For'): #Leser av alle linjer med "Punktlast..." eller "Fordelt last..."
+                idTemp = row[1]
+                nodeIdTemp = row[2]
+                typeTemp = row[3]
+                vinkelTemp = row[4]
+                intensTemp = row[5]
+                startPunktTemp = row[6]
+                sluttPunktTemp = row[7]
+                lastArrayTemp = [typeTemp,intensTemp,startPunktTemp, sluttPunktTemp,vinkelTemp,idTemp,nodeIdTemp]
+                lastarray.append(lastArrayTemp)
+                #print("Last reading")
+                
+
+            elif ((row[0])[:3]=='Geo'): #indikerer at man er i nederste tabell
+                geoCount = 1
+                #print("start nedre tabell")
+
+            elif (geoCount ==1 and row[0]!= ''): #kjører ut nederste tabell
+                geoTemp = row[0]
+                BTemp = row[1]
+                bTemp = row[2]
+                HTemp = row[3]
+                hTemp = row[4]
+                Rtemp = row[5]
+                rTemp = row[6]
+                t_stegTemp = row[7]
+                t_flensTemp = row[8]
+                mat_typeTemp = row[9]
+                ETemp = row[10]
+                geoArrayTemp = [geoTemp, BTemp,bTemp,HTemp,hTemp,Rtemp,rTemp,t_stegTemp,t_flensTemp ,mat_typeTemp ,ETemp]
+                geoarray.append(geoArrayTemp) 
+                #print("geometry reading")
+
+
+            else :
+                continue 
+    
+    
+    return npunkt,nodearray, nelem, beamarray, nlast, lastarray, ntverr, geoarray
+
+values = lesinput("C:\MarineKonstruksjoner\inputfil25.1.csv")
+
+#for i in range(8): 
+    #print(values[i])
+
+#print(values[])
