@@ -6,9 +6,15 @@ class FastInnMom:
         return np.cross(p2-p1,p3-p1)/np.linalg.norm(p2-p1)
     
     def fibPair(self, pair):                                                 # Finner fastinnspenningsmoment for endepunktene til et element
+<<<<<<< HEAD
+        if not pair[0].distLoad:    
+            P = pair[0].intencity                                      # Intensitet på lasten
+            phi = pair[0].angle - pair[1].angle                        # Lastens vinkel på element
+=======
         if not pair[0].distLoad:                                      
             phi = pair[0].angle - pair[1].angle # Intensitet på lasten
             p = pair[0].intencity * np.sin(phi)                       # Lastens vinkel på alement
+>>>>>>> f22b0d00673b6fa2b88bece74df7f5d9542c5bca
             a = np.linalg.norm(pair[0].attackPoint - pair[1].P1.punkt) # Avtand fra last til P1
             b = np.linalg.norm(pair[0].attackPoint - pair[1].P2.punkt) # Avstand fra last til P2
             L = pair[1].L                                        # Elementlengde
