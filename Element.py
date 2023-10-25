@@ -46,11 +46,11 @@ class Element:
                          np.array([0             , 0             , 0, -np.sin(angle), np.cos(angle) , 0]),
                          np.array([0             , 0             , 0, 0             , 0             , 1])])
 
-    def transformFromGlobal(self, angle, array): # Definerer transformasjon fra globale til lokale koordinater
-        return np.matmul(self.rotMat(angle), array)
+    def transformFromGlobal(self, array): # Definerer transformasjon fra globale til lokale koordinater
+        return np.matmul(self.rotMat(self.angle), array)
     
-    def transformToGlobal(self, angle, array): # Definerer transformasjon fra globale til lokale koordinater
-        return np.matmul(np.transpose(self.rotMat(angle)), array)
+    def transformToGlobal(self, array): # Definerer transformasjon fra globale til lokale koordinater
+        return np.matmul(np.transpose(self.rotMat(self.angle)), array)
     
     def transformKToGlobal(self):
         return np.matmul(np.transpose(self.rotMat(self.angle)), np.matmul(self.k, self.rotMat(self.angle)))

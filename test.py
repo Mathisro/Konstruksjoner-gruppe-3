@@ -7,35 +7,19 @@ import lesinput
 import FastInnMom
 import SysStiMat
 import Tverrsnitt
-
-
+import EndeMom
 
 npunkt = 2
-punkt = np.array([np.array([0, 0, 0]),np.array([1, 0, 0])])
+punkt = np.array([np.array([0, 0, (1, 1, 0)]),np.array([1, 0, (1, 0, 0)])], dtype=object) # Punkter på formen: (x, y, (innspenning x, innspenning y, momentinnspenning))
 nelem = 1
-elem = np.array([np.array([0, 1, 210e6, 1])])
-nlast = 1
-last = np.array([np.array([1, 1, np.array([1/3, 0]), np.array([2/3, 0]), np.array([0, -1]), 0])])
+elem = np.array([np.array([0, 1, 1])]) # Elementer på formen [globalt punkt 1, globalt punkt 2, tverrsnittype]
+nlast = 2
+last = np.array([np.array([2, 1, np.array([0, 0]), np.array([1, 0]), -90]), np.array([1, 0, np.array([0.5, 0]), 0, -90])], dtype=object)
+# Last: [(Type last: 1 = punktlast,  2 = jevnt fordelt, 3 = trekant maks til høyre ytterst, 4 = trekant m/ maks venstre ytterst
+# 5 = trekant venstre maks innerst, 6 = trekant høyre maks innesrt , 7 = parabel, 8 = sinus), 
+# intenistet, startpunkt, sluttpunnkt, retning i grader, type fordelt: ]
 tverrsnitt = np.array([np.array([0, 1, 0, 12, 0, 0, 0, 0, 0, 1, 1])])
-
-#punktOb = []
-#for i in range(npunkt):
-#        punktOb.append(Punkt.Punkt(i, punkt[i]))
-        
-#elementOb = []
-#for i in range(nelem):
-#        elementOb.append(Element.Element(i, elem[i], punktOb))
-
-#lastOb = []
-#for i in range(nlast):
-#        lastOb.append(Last.Last(i, last[i]))
-
-
-#fim = FastInnMom.FastInnMom(lastOb, elementOb, npunkt, nelem)
-
-#fimVector = fim.fib
-
-#print(fimVector)
+# [Index, H, h, B, b, R, r, T_stag, T_flens, Matr_type, E_modul]
 
 # -----Rammeanalyse-----
 def main_test():
@@ -46,13 +30,7 @@ def main_test():
     fig_init, ax_init, fig_def, ax_def = setup_plots()  # Initialiserer figurer til visualiseringen
     first_index = 0 # Første index brukt
 
-    npunkt = 2
-    punkt = np.array([np.array([0, 0, (1, 1, 0)]),np.array([1, 0, (1, 0, 0)])]) # Punkter på formen: (x, y, (innspenning x, innspenning y, momentinnspenning))
-    nelem = 1
-    elem = np.array([np.array([0, 1, 1])]) # Elementer på formen [globalt punkt 1, globalt punkt 2, tverrsnittype]
-    nlast = 1
-    last = np.array([np.array([1, 1, np.array([0, 0]), np.array([1, 0]), np.array([0, 1]), 0])])
-    # Punktlast: [true, intenistet, ]
+    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_portal.csv') # Leser input-data
  
     plot_structure(ax_init, punkt, elem, 1, first_index) # Plotter initalramme
  
@@ -85,7 +63,7 @@ def main_test():
     # Lag funksjonen selv
     b = fim.fib
 
-    print(b)
+    #print(b)
  
     # ------Setter opp systemstivhetsmatrisen-----
     # Lag funksjonen selv
@@ -95,7 +73,7 @@ def main_test():
     # Lag funksjonen selv
     K.randBet(elementOb)
 
-    print(K.K)
+    #print(K.K)
  
     # -----Løser ligningssystemet------
     # Lag funksjonen selv
@@ -105,7 +83,9 @@ def main_test():
      
     #------Finner endemoment for hvert element-----
     # Lag funksjonen selv
-    endemoment = endeM(npunkt, punkt, nelem, elem, elementlengder, rot, fim)
+    endemoment = EndeMom.EndeMom(elementOb, rot, fim).endeMom
+
+    #print(endemoment)
  
     #-----Skriver ut hva rotasjonen ble i de forskjellige nodene-----
     print("Rotasjoner i de ulike punktene:")
@@ -113,7 +93,9 @@ def main_test():
  
     #-----Skriver ut hva momentene ble for de forskjellige elementene-----
     print("Elementvis endemoment:")
-    print(endemoment)
+    #print(endemoment)
+
+    rot = [rot[2], rot[5]]
  
     #-----Plott deformert ramme-----
     skalering = 100;     # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen

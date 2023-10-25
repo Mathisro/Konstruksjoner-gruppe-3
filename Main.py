@@ -7,9 +7,10 @@ import lesinput
 import FastInnMom
 import SysStiMat
 import Tverrsnitt
- 
+import EndeMom
+
 # -----Rammeanalyse-----
-def main():
+def main_test():
     
     # Plotter figurer
     # 
@@ -25,24 +26,22 @@ def main():
     # elementlengder = lengder(punkt, elem, nelem) ## Gjøres i hvert objekt
 
     # Initialiserer liste med alle objektene
-
+    
     tverrsnittOb = []
     for i in range(len(tverrsnitt)):
         tverrsnittOb.append(Tverrsnitt.Tverrsnitt(tverrsnitt[i]))
 
-    punktOb = np.zeros(npunkt)
+    punktOb = []
     for i in range(npunkt):
-        punktOb[i] = Punkt.Punkt(i, punkt[i])
+        punktOb.append(Punkt.Punkt(i, punkt[i]))
         
-    elementOb = np.zeros(nelem)
+    elementOb = []
     for i in range(nelem):
-        elementOb[i] = Element.Element(i, elem[i], tverrsnittOb)
+        elementOb.append(Element.Element(i, elem[i], punktOb, tverrsnittOb))
 
-    lastOb = np.zeros(nlast)
+    lastOb = []
     for i in range(nlast):
-        lastOb[i] = Last.Last(i, last[i])
-
-
+        lastOb.append(Last.Last(i, last[i]))
  
     # -----Fastinnspenningsmomentene------
     # Lag funksjonen selv
@@ -51,6 +50,8 @@ def main():
     # -----Setter opp lastvektor-----
     # Lag funksjonen selv
     b = fim.fib
+
+    print(b)
  
     # ------Setter opp systemstivhetsmatrisen-----
     # Lag funksjonen selv
@@ -59,15 +60,20 @@ def main():
     # ------Innfører randbetingelser------
     # Lag funksjonen selv
     K.randBet(elementOb)
+
+    print(K.K)
  
     # -----Løser ligningssystemet------
     # Lag funksjonen selv
     rot = np.linalg.solve(K.K, b)
+    print(rot)
     # Hint, se side for løsing av lineære systemer i Python
      
     #------Finner endemoment for hvert element-----
     # Lag funksjonen selv
-    endemoment = endeM(npunkt, punkt, nelem, elem, elementlengder, rot, fim)
+    endemoment = EndeMom.EndeMom(elementOb, rot, fim).endeMom
+
+    print(endemoment)
  
     #-----Skriver ut hva rotasjonen ble i de forskjellige nodene-----
     print("Rotasjoner i de ulike punktene:")
@@ -81,3 +87,5 @@ def main():
     skalering = 100;     # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
     plot_structure_def(ax_def, punkt, elem, 1, first_index, skalering*rot)
     plt.show()
+
+main_test()
