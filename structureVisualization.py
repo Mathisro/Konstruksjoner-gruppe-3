@@ -24,7 +24,7 @@ def plot_structure(ax, punkt, elem, numbers, index_start):
 
     # Change input to the correct format
     nodes = np.array(punkt[:, 0:2], copy = 1, dtype = int)
-    el_nod = np.array(elem[:, 0:2], copy=1, dtype=int) + 1
+    el_nod = np.array(elem[:, 1:3], copy=1, dtype=int) + 1 # [:, 1:3] grunnet første index er elementnummer
 
     # Start plotting part
     for iel in range(0, el_nod.shape[0]):
@@ -45,15 +45,22 @@ def plot_structure(ax, punkt, elem, numbers, index_start):
             ax.text(nodes[inod, 0], nodes[inod, 1], str(inod + index_start), color = 'red', fontsize = 16)
 
 
-def plot_structure_def(ax, punkt, elem, numbers, index_start, r):
+def plot_structure_def(ax, punkt, elem, numbers, index_start, rot, sRot, sTrans):
     # This is a translation of the original function written by Josef Kiendl in Matlab
     # This function plots the deformed beam structure defined by nodes and elements
     # The bool (0 or 1) 'numbers' decides if node and element numbers are plotted or not
 
     # Change input to the correct format
-    nodes = np.array(punkt[:, 0:2], copy = 1, dtype = int)
-    el_nod = np.array(elem[:, 0:2], copy=1, dtype=int) + 1
+    nodes = np.array(punkt[:, 0:2], copy = 1, dtype = float)
+    el_nod = np.array(elem[:, 1:3], copy=1, dtype=int) + 1 # [:, 1:3] grunnet indeks 0 er elementnummer
     nod_dof = np.arange(1, nodes.shape[0] + 1, 1, dtype=int)
+
+    r = rot[2::3] * sRot
+    dx = rot[0::3] * sTrans
+    dz = rot[1::3] * sTrans
+    
+    nodes[:, 0] += dx
+    nodes[:, 1] += dz
 
     if numbers == 1:
         # Plot node number

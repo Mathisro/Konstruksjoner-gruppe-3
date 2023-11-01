@@ -3,44 +3,30 @@ import numpy as np
 class SysStiMat:
 
     def __init__(self, elemOb, n):
-        self.K = np.zeros((n*6)**2)
-        self.K = np.reshape(self.K, (n*6, n*6))
+        self.K = np.zeros((n*3)**2)
+        self.K = np.reshape(self.K, (n*3, n*3))
 
         for elem in elemOb:
-            k = elem.k
-            Khat = elem.transformKToGlobal
-            kTab = elem.kTab
+            Khat = elem.transformKToGlobal()
 
             for i in range(6):
                 for j in range(6):
-                    self.K[kTab[:, 2][i], kTab[:, 2][j]] = k[i, j]
+                    self.K[elem.indexFromKtab(i), elem.indexFromKtab(j)] += Khat[i, j]
 
     def randBet(self, elemOb):
 
         for elem in elemOb:
-            boundryVal = elem.P1.boundryVal
 
-            b1, b2, b3 = boundryVal[0], boundryVal[1], boundryVal[2]
+            for i in range(3):
+                b1 = elem.P1.boundryVal[i]
+                b2 = elem.P2.boundryVal[i]
 
-            index1 = elem.kTab[0, 2]
-            index2 = elem.kTab[1, 2]
-            index3 = elem.kTab[2, 2]
+                if b1:
+                    index = elem.indexFromKtab(i)
+                    self.K[index, index] *= 10e9
 
-            self.K[index1, index1] *= 10e6 * b2
-            self.K[index2, index2] *= 10e6 * b1
-            self.K[index3, index3] *= 10e6 * b3
+                if b2:
+                    index = elem.indexFromKtab(i + 3)
+                    self.K[index, index] *= 10e9
 
-            boundryVal = elem.P2.boundryVal
-
-            b1, b2, b3 = boundryVal[0], boundryVal[1], boundryVal[2]
-
-            index1 = elem.kTab[3, 2]
-            index2 = elem.kTab[4, 2]
-            index3 = elem.kTab[5, 2]
-
-            self.K[index1, index1] *= 10e6 * b2
-            self.K[index2, index2] *= 10e6 * b1
-            self.K[index3, index3] *= 10e6 * b3
-
-            
  

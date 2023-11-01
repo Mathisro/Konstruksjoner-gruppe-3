@@ -6,21 +6,15 @@ class FastInnMom:
         return np.cross(p2-p1,p3-p1)/np.linalg.norm(p2-p1)
     
     def fibPair(self, pair):                                                 # Finner fastinnspenningsmoment for endepunktene til et element
-<<<<<<< HEAD
-        if not pair[0].distLoad:    
-            P = pair[0].intencity                                      # Intensitet på lasten
-            phi = pair[0].angle - pair[1].angle                        # Lastens vinkel på element
-=======
         if not pair[0].distLoad:                                      
-            phi = pair[0].angle - pair[1].angle # Intensitet på lasten
+            phi = -pair[0].angle + pair[1].angle                         # Intensitet på lasten
             p = pair[0].intencity * np.sin(phi)                       # Lastens vinkel på alement
->>>>>>> f22b0d00673b6fa2b88bece74df7f5d9542c5bca
             a = np.linalg.norm(pair[0].attackPoint - pair[1].P1.punkt) # Avtand fra last til P1
             b = np.linalg.norm(pair[0].attackPoint - pair[1].P2.punkt) # Avstand fra last til P2
             L = pair[1].L                                        # Elementlengde
             M1 = -(p * np.sin(phi) * a * b**2)/L                       # Fast innspenningsmoment i P1 (Globalt knutepunkt nr. index1)
             M2 = (p * np.sin(phi) * a**2 * b)/L
-            q1 = M1 + M2 + p  * a
+            q1 = (-M1 - M2 + p  * b)/L
             q2 = p - q1
         else:
             phi = pair[0].angle - pair[1].angle
@@ -74,7 +68,7 @@ class FastInnMom:
             if not lastOb[i].distLoad:  # Hvis ikke fordelt last
                 for j in range(nelem):
                     d = self.dist(elemOb[j].P1.punkt, elemOb[j].P2.punkt, lastOb[i].attackPoint)    # Avstand fra angrepspunkt til element
-                    if d < 0.01:        # Hvis angrepspunktet er på elementet
+                    if abs(d) < 0.01:        # Hvis angrepspunktet er på elementet
                         self.pairs.append((lastOb[i], elemOb[j]))
             else:
                 for j in range(nelem): 
@@ -84,13 +78,10 @@ class FastInnMom:
                         self.pairs.append((lastOb[i], elemOb[j]))
 
         for pair in self.pairs:
-            s = self.fibPair(pair)
-            s = pair[1].transformToGlobal(s)
-            index1R = 3*pair[1].P1.punktn + 1           # Index moment i ende 1 i Systemlastvektor-vektor
-            index2R = 3*pair[1].P2.punktn + 1           # Index for moment i ende to i Systemlastvektor
-            self.fib[index1R + 1] -= s[2]               # Fast innspenningsmoment i P1 (Globalt knutepunkt nr. index1)
-            self.fib[index1R ] -= s[1]                  # Fast innspenningslast i P1
-            self.fib[index2R + 1] -= s[5]               # Fast innspenningsmoment i P2 (Globalt knutepunkt nr. index2)
-            self.fib[index2R] -= s[4]                   # Fast innspenningslast i P2
+            elem = pair[1]
+            s = elem.transformToGlobal(self.fibPair(pair))
+
+            for i in range(6):
+                self.fib[elem.indexFromKtab(i)] += s[i]
 
     
