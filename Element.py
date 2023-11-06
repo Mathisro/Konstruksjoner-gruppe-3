@@ -27,7 +27,7 @@ class Element:
         EA = A * self.E
         L = self.L
 
-        print(f'Elementnummer: {self.elem_n}, lengde: {L}')
+        #print(f'Elementnummer: {self.elem_n}, lengde: {L}')
 
         self.k = np.array([np.array([EA/L , 0          , 0         , -EA/L, 0           , 0         ]),
                            np.array([0    , 12*EI/L**3 , -6*EI/L**2, 0    , -12*EI/L**3 , -6*EI/L**2]),
@@ -46,23 +46,30 @@ class Element:
         
         self.last = []
 
+        self.rotMat = np.array([np.array([np.cos(self.angle) , np.sin(self.angle) , 0, 0                  , 0                  , 0]),
+                                np.array([-np.sin(self.angle), np.cos(self.angle) , 0, 0                  , 0                  , 0]),
+                                np.array([0                  , 0                  , 1, 0                  , 0                  , 0]),
+                                np.array([0                  , 0                  , 0, np.cos(self.angle) , np.sin(self.angle) , 0]),
+                                np.array([0                  , 0                  , 0, -np.sin(self.angle), np.cos(self.angle) , 0]),
+                                np.array([0                  , 0                  , 0, 0                  , 0                  , 1])])
+
     def indexFromKtab(self, index):
         return self.kTab[:, 2][index]
 
 
-    def rotMat(self, angle): # Definerer rotasjonsmatrisa for å transformere koordinatsystemene
-        return np.array([np.array([np.cos(angle) , np.sin(angle) , 0, 0             , 0             , 0]),
-                         np.array([-np.sin(angle), np.cos(angle) , 0, 0             , 0             , 0]),
-                         np.array([0             , 0             , 1, 0             , 0             , 0]),
-                         np.array([0             , 0             , 0, np.cos(angle) , np.sin(angle) , 0]),
-                         np.array([0             , 0             , 0, -np.sin(angle), np.cos(angle) , 0]),
-                         np.array([0             , 0             , 0, 0             , 0             , 1])])
+    # def rotMat(self, angle): # Definerer rotasjonsmatrisa for å transformere koordinatsystemene
+    #     return np.array([np.array([np.cos(angle) , np.sin(angle) , 0, 0             , 0             , 0]),
+    #                      np.array([-np.sin(angle), np.cos(angle) , 0, 0             , 0             , 0]),
+    #                      np.array([0             , 0             , 1, 0             , 0             , 0]),
+    #                      np.array([0             , 0             , 0, np.cos(angle) , np.sin(angle) , 0]),
+    #                      np.array([0             , 0             , 0, -np.sin(angle), np.cos(angle) , 0]),
+    #                      np.array([0             , 0             , 0, 0             , 0             , 1])])
 
     def transformFromGlobal(self, array): # Definerer transformasjon fra globale til lokale koordinater
-        return np.matmul(self.rotMat(self.angle), array)
+        return np.matmul(self.rotMat, array)
     
     def transformToGlobal(self, array): # Definerer transformasjon fra globale til lokale koordinater
-        return np.matmul(np.transpose(self.rotMat(self.angle)), array)
+        return np.matmul(np.transpose(self.rotMat), array)
     
     def transformKToGlobal(self):
-        return np.matmul(np.transpose(self.rotMat(self.angle)), np.matmul(self.k, self.rotMat(self.angle)))
+        return np.matmul(np.transpose(self.rotMat), np.matmul(self.k, self.rotMat))

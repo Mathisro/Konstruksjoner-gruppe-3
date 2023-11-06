@@ -18,7 +18,8 @@ class FastInnMom:
     def fastInnKrefter(self, elem):
         M1, M2, q1, q2 = 0, 0, 0, 0
 
-        for last in elem.last:                             # Finner fastinnspenningsmoment for endepunktene til et element
+        for last in elem.last: 
+            print(last.lastn)                            # Finner fastinnspenningsmoment for endepunktene til et element
             if not last.distLoad:                                      
                 phi = -last.angle + elem.angle                         # Intensitet på lasten
                 p = last.intencity * np.sin(phi)                     # Lastens vinkel på alement
@@ -28,7 +29,7 @@ class FastInnMom:
 
                 M1 += -(p * a * b**2)/L                       # Fast innspenningsmoment i P1 (Globalt knutepunkt nr. index1)
                 M2 += (p * a**2 * b)/L
-                q1 += (-M1 - M2 + p  * b)/L
+                q1 += -(-M1 - M2 + p  * b)/L        # FINNE UT AV MINUSEN HER!!!
                 q2 += p - q1
 
             else:
@@ -127,7 +128,6 @@ class FastInnMom:
         for elem in elemOb:
             if elem.harLast():
                 s = elem.transformToGlobal(self.fastInnKrefter(elem))
-                print(elem.last[0].lastn)
 
                 for i in range(6):
                     self.fib[elem.indexFromKtab(i)] += s[i]

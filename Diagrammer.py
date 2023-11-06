@@ -8,31 +8,46 @@ class Diagrammer:
         Q1 = mom[elem.elem_n, 1]
         N1 = mom[elem.elem_n, 0]
 
+        
+
         if elem.harLast():
-            last = elem.last
-            phi = -last.angle + elem.angle                         # Intensitet på lasten
-            P = last.intencity * np.sin(phi) 
+            for last in elem.last:
 
-            if not last.distLoad:
-                a = np.linalg.norm(last.attackPoint - elem.P1.punkt)
+                phi = -last.angle + elem.angle                         # Intensitet på lasten
+                P = last.intencity * np.sin(phi) 
 
-                xFirstPart = x[:a/elem.L * len(x)]
-                xSecondPart = x[a/elem.L * len(x):]
+                M, V, N = np.zeros(len(x)), np.zeros(len(x)), np.zeros(len(x))
 
-                M = np.concatenate((-M1 - Q1*xFirstPart), (-M1 - Q1*xSecondPart + P*(xSecondPart - elem.L/2)))
-                V = np.concatenate((-Q1), (-Q1 + P))
-                N = -N1 + np.zeros(len(x))
+                if not last.distLoad:
+                    a = np.linalg.norm(last.attackPoint - elem.P1.punkt)
+
+                    xFirstPart = x[:int(a/elem.L * len(x))]
+                    xSecondPart = x[int(a/elem.L * len(x)):]
+
+                    print(a)
+
+                    M_1 =  list(- Q1*xFirstPart - M1)
+                    M_2 = list(- Q1*xSecondPart + P*(xSecondPart - elem.L/2) - M1)
+
+                    Q_1 = list(np.zeros(len(xFirstPart)) - Q1)
+                    Q_2 = list(np.zeros(len(xSecondPart)) - Q1 + P)
+
+                    M += np.array(M_1 + M_2)
+                    V += np.array(Q_1 + Q_2)
+                    N += -N1 + np.zeros(len(x))
+
+                elif last.type == 1:
+                    M += -M1 - Q1*x + P*x*x/2
+                    V += -Q1 + P*x
+                    N += -N1 + np.zeros(len(x))
+
+                else:
+                    M += -M1 - Q1*x + (P*x**2)/(6*elem.L)
+                    V += -Q1 + (P*x)/(2*elem.L)
+                    N += -N1 + np.zeros(len(x))
+
                 return M, V, N
-            elif last.type == 1:
-                M = -M1 - Q1*x + P*x*x/2
-                V = -Q1 + P*x
-                N = -N1 + np.zeros(len(x))
-                return M, V, N
-            else:
-                M = -M1 - Q1*x + (P*x**2)/(6*elem.L)
-                V = -Q1 + (P*x)/(2*elem.L)
-                N = -N1 + np.zeros(len(x))
-                return M, V, N
+            
         else:
             M = -M1 - Q1*x
             V = -Q1 + np.zeros(len(x))
@@ -69,7 +84,7 @@ class Diagrammer:
         for i in range(elem_n):
             self.plotSubplot(i, x, M[i], f'Bjelke {i}')
 
-        plt.show()
+        #plt.show()
 
         # Plotter V-Diagrammer
         plt.figure(figsize=(15, 5 * self.n_rows))
@@ -78,7 +93,7 @@ class Diagrammer:
         for i in range(elem_n):
             self.plotSubplot(i, x, V[i], f'Bjelke {i}')
 
-        plt.show()
+        #plt.show()
 
         # Plotter N-Diagrammer
         plt.figure(figsize=(15, 5 * self.n_rows))
@@ -87,4 +102,4 @@ class Diagrammer:
         for i in range(elem_n):
             self.plotSubplot(i, x, N[i], f'Bjelke {i}')
 
-        plt.show()
+        #plt.show()

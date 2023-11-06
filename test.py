@@ -31,7 +31,7 @@ def main_test():
     fig_init, ax_init, fig_def, ax_def = setup_plots()  # Initialiserer figurer til visualiseringen
     first_index = 0 # Første index brukt
 
-    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_prosjekt_2.csv') # Leser input-data
+    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_portal.csv') # Leser input-data
 
     punkt = np.array(punkt)
     elem = np.array(elem)
@@ -107,9 +107,10 @@ def main_test():
     scaleRot = 100 # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
     scaleTrans = 100
     plot_structure_def(ax_def, punkt, elem, 1, first_index, rot, scaleRot, scaleTrans)
-    plt.show()
+  
     
     Diagrammer.Diagrammer(elementOb, endemoment, nelem)
+    plt.show()
 
     
 
