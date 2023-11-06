@@ -33,7 +33,7 @@ def lesinput(fil):
                 fxTemp = float(row[4])
                 fyTemp = float(row[5])
                 mTemp = float(row[6])
-                tempMatrise = np.array([xTemp, yTemp, (fxTemp,fyTemp,mTemp)])
+                tempMatrise = np.array([xTemp, yTemp, (fxTemp,fyTemp,mTemp)], dtype=object)
                 nodearray.append(tempMatrise)
                 #print("Node reading")
 

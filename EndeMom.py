@@ -11,8 +11,8 @@ class EndeMom:
             S_that = []
 
             for i in range (6):
-                V_that.append(rot[elem.kTab[i, 2]])
-                S_that.append(fim.fib[elem.kTab[i, 2]])
+                V_that.append(rot[elem.indexFromKtab(i)])
+                S_that.append(fim.fib[elem.indexFromKtab(i)])
 
             V_that = np.array(elem.transformFromGlobal(V_that))
             S_that = np.array(elem.transformFromGlobal(S_that))

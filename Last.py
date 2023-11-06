@@ -4,7 +4,7 @@ class Last:
 
      def __init__(self, n, lastRow):
         self.lastn = n # Lastnummer 
-        if lastRow[0] != 1: # Hvis fordelt last
+        if lastRow[0] != 0: # Hvis fordelt last
             self.distLoad = True
             self.intencity = lastRow[6] # Intensiteten er gitt av en funksjon
             self.startPoint = np.array([lastRow[1], lastRow[2]]) # Startpunkt (x, y)

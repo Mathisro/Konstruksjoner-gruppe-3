@@ -8,17 +8,18 @@ import FastInnMom
 import SysStiMat
 import Tverrsnitt
 import EndeMom
+import Diagrammer
 
 npunkt = 2
-punkt = np.array([np.array([0, 0, (1, 1, 0)], dtype=object), np.array([1, 0, (0, 1, 0)], dtype=object)], dtype=object) # Punkter på formen: (x, y, (innspenning x, innspenning y, momentinnspenning))
+punkt = np.array([np.array([0, 0, (1, 1, 0)], dtype=object), np.array([0, 10, (1, 1, 0)], dtype=object)], dtype=object) # Punkter på formen: (x, y, (innspenning x, innspenning y, momentinnspenning))
 nelem = 1
 elem = np.array([np.array([0, 0, 1, 1, 350])]) # Elementer på formen [elementnummer, globalt punkt 1, globalt punkt 2, tverrsnittype, flytspenning]
 nlast = 1
-last = np.array([np.array([1, 0.5, 0, 0, 0, 90, 1000])])#, np.array([1, 0, np.array([0.5, 0]), 0, -90])], dtype=object)
-# Last: [(Type last: 1 = punktlast,  2 = jevnt fordelt, 3 = trekant maks til høyre ytterst, 4 = trekant m/ maks venstre ytterst
-# 5 = trekant venstre maks innerst, 6 = trekant høyre maks innesrt , 7 = parabel, 8 = sinus), 
+last = np.array([np.array([1, 0, 0, 0, 10, 0, 1])])#, np.array([1, 0, np.array([0.5, 0]), 0, -90])], dtype=object)
+# Last: [(Type last: 0 = punktlast,  1 = jevnt fordelt, 2 = trekant maks til høyre ytterst, 3 = trekant m/ maks venstre ytterst
+# 4 = trekant venstre maks innerst, 5 = trekant høyre maks innesrt , 6 = parabel, 7 = sinus), 
 # x1, y1, x2, y2, vinkel i grader, intensitet]
-tverrsnitt = np.array([np.array([0, 0.2, 0, 0.2, 0, 0, 0, 0, 0, 1, 210000000000])])
+tverrsnitt = np.array([np.array([0, 0.2, 0, 0.2, 0, 0, 0, 0, 0, 1, 210000000])])
 # [Index, H, h, B, b, R, r, T_stag, T_flens, Matr_type, E_modul]
 
 # -----Rammeanalyse-----
@@ -30,11 +31,13 @@ def main_test():
     fig_init, ax_init, fig_def, ax_def = setup_plots()  # Initialiserer figurer til visualiseringen
     first_index = 0 # Første index brukt
 
-    #npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_portal.csv') # Leser input-data
+    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_prosjekt_2.csv') # Leser input-data
 
-    #punkt = np.array(punkt)
-    #elem = np.array(elem)
-    #tverrsnitt = np.array(tverrsnitt)
+    punkt = np.array(punkt)
+    elem = np.array(elem)
+    tverrsnitt = np.array(tverrsnitt)
+
+    
 
     plot_structure(ax_init, punkt, elem, 1, first_index) # Plotter initalramme
  
@@ -71,11 +74,11 @@ def main_test():
  
     # ------Setter opp systemstivhetsmatrisen-----
     # Lag funksjonen selv
-    K = SysStiMat.SysStiMat(elementOb, npunkt)
+    K = SysStiMat.SysStiMat(elementOb, npunkt, punktOb)
  
     # ------Innfører randbetingelser------
     # Lag funksjonen selv
-    K.randBet(elementOb)
+    K.randBet(punktOb, npunkt)
 
     print(K.K)
  
@@ -97,11 +100,17 @@ def main_test():
     #-----Skriver ut hva momentene ble for de forskjellige elementene-----
     print("Elementvis endemoment:")
     print(endemoment)
+    
+    
  
     #-----Plott deformert ramme-----
-    scaleRot = 100000 # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
-    scaleTrans = 100000
+    scaleRot = 100 # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
+    scaleTrans = 100
     plot_structure_def(ax_def, punkt, elem, 1, first_index, rot, scaleRot, scaleTrans)
     plt.show()
+    
+    Diagrammer.Diagrammer(elementOb, endemoment, nelem)
+
+    
 
 main_test()

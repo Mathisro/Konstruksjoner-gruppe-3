@@ -14,7 +14,7 @@ Beam;2;2;3;2;420;;;;
 ;;;;;;;;;;
 ;;;;;;;;;0= Gjevnt, 1= trekant med maks h�yre, 2= trekant med maks venstre, 3= trekant med maks innerst, 4= med min innerst, 5= parabel, 6= sinuskurve;
 ;Type frdelt;x1;y1;x2;y2;;Vinkel;intensitet;;
-Punktlast 1;1;0;10;0;0;0;100;;;;
+Punktlast 1;0;0;10;0;0;0;100;;;;
 ;;;;;;;;;;
 ;;;;;;;;;;
  1=Boks, 2=R�r, 3=I-profil;;;;;;;;;;

@@ -6,8 +6,9 @@ class Tverrsnitt:
         self.E = tverrsnitt[10]
         
         if tverrsnitt[1] == 0: # Høyden er null --> Rørprofil
-            R = tverrsnitt[4]
-            r = tverrsnitt[5]
+            R = tverrsnitt[5]
+            r = tverrsnitt[6]
+            #print(f'R = {R} og r = {r}')
 
             self.A = np.pi * (R**2 - r**2) # Ytre diameter minus indre diameter
             self.I = 0.25 * np.pi * (R**4 - r**4)
@@ -33,6 +34,10 @@ class Tverrsnitt:
             H = tverrsnitt[3]
             h = tverrsnitt[4]
 
-            self.A = H*B - h*B
+            #print(f'B = {B}, b = {b}, H = {H}, h = {h}')
+
+            self.A = H*B - h*b
             self.I = (B*H**3)/12 - (b*h**3)/12
+
+            #print(self.I)
         

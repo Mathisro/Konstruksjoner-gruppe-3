@@ -1,8 +1,13 @@
 import numpy as np
+import Last
 
 class Element:
 
     V = np.zeros(6)
+
+    def harLast(self):
+        return self.last != []
+    
 
     def __init__(self, n, elemRow, PunktOb, tverrsnittOb):
         self.elem_n = n # Elementnummer
@@ -22,6 +27,8 @@ class Element:
         EA = A * self.E
         L = self.L
 
+        print(f'Elementnummer: {self.elem_n}, lengde: {L}')
+
         self.k = np.array([np.array([EA/L , 0          , 0         , -EA/L, 0           , 0         ]),
                            np.array([0    , 12*EI/L**3 , -6*EI/L**2, 0    , -12*EI/L**3 , -6*EI/L**2]),
                            np.array([0    , -6*EI/L**2 , 4*EI/L    , 0    , 6*EI/L**2   , 2*EI/L    ]),
@@ -36,6 +43,8 @@ class Element:
                               np.array([3, self.P2, 3 * (self.P2.punktn) + 0]),
                               np.array([4, self.P2, 3 * (self.P2.punktn) + 1]),
                               np.array([5, self.P2, 3 * (self.P2.punktn) + 2])])
+        
+        self.last = []
 
     def indexFromKtab(self, index):
         return self.kTab[:, 2][index]
