@@ -46,24 +46,19 @@ def plot_structure(ax, punkt, elem, numbers, index_start):
 
 
 def plot_structure_def(ax, punkt, elem, numbers, index_start, rot, sRot, sTrans):
-    # This is a translation of the original function written by Josef Kiendl in Matlab
-    # This function plots the deformed beam structure defined by nodes and elements
-    # The bool (0 or 1) 'numbers' decides if node and element numbers are plotted or not
 
-    # Change input to the correct format
     nodes = np.array(punkt[:, 0:2], copy = 1, dtype = float)
-    el_nod = np.array(elem[:, 1:3], copy=1, dtype=int) + 1 # [:, 1:3] grunnet indeks 0 er elementnummer
+    el_nod = np.array(elem[:, 1:3], copy=1, dtype=int) + 1 
     nod_dof = np.arange(1, nodes.shape[0] + 1, 1, dtype=int)
 
-    r = rot[2::3] * sRot
-    dx = rot[0::3] * sTrans
-    dz = rot[1::3] * sTrans
+    r = rot[2::3] * sRot            # Rotasjonsvektor
+    dx = rot[0::3] * sTrans         # Translasjoner x-retning
+    dz = rot[1::3] * sTrans         # Translasjoner y-retning (kalt z i denne funksjoner)
     
-    nodes[:, 0] += dx
-    nodes[:, 1] += dz
+    nodes[:, 0] += dx               # Legger inn translasjoner i x-ratning
+    nodes[:, 1] += dz               # Legger inn translasjoner i y-retning
 
     if numbers == 1:
-        # Plot node number
         for inod in range(0, nodes.shape[0]):
             ax.text(nodes[inod, 0], nodes[inod, 1], str(inod + index_start), color = 'red', fontsize = 16)
 
@@ -86,15 +81,12 @@ def plot_structure_def(ax, punkt, elem, numbers, index_start, rot, sRot, sTrans)
         cs = CubicSpline(x, z, bc_type = ((1, -phi[0, 0]), (1, -phi[1, 0])))
         zz = cs(xx)
 
-        # Rotate
         xxzz = np.array([[np.cos(psi), -np.sin(psi)], [np.sin(psi), np.cos(psi)]]) @ np.vstack([xx, zz])
 
-        # Displace
         xx2 = xxzz[0, :] + nodes[el_nod[iel, 0] - 1, 0]
         zz2 = xxzz[1, :] + nodes[el_nod[iel, 0] - 1, 1]
         ax.plot(xx2, zz2, '-k', linewidth = 2)
 
         if numbers == 1:
-            # Plot element numbers. These are not plotted in the midpoint to
-            # avoid number superposition when elements cross in the middle
+
             ax.text(xx2[round(xx2.size / 2.5)], zz2[round(xx2.size / 2.5)], str(iel + index_start), color = 'blue', fontsize = 16)

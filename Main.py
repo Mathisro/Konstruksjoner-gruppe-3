@@ -1,3 +1,4 @@
+# ----Importer biblioteker og filer----
 from structureVisualization import *
 import numpy as np
 import Punkt
@@ -8,29 +9,30 @@ import FastInnMom
 import SysStiMat
 import Tverrsnitt
 import EndeMom
+import Diagrammer
 import Kapasitet
 
 # -----Rammeanalyse-----
-def main_test():
+def main():
     
-    # Plotter figurer
-    # 
-    
+    #-----Klargjør for plotting med utdelt kode-----
     fig_init, ax_init, fig_def, ax_def = setup_plots()  # Initialiserer figurer til visualiseringen
     first_index = 0 # Første index brukt
 
-    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput() # Leser input-data
- 
-    plot_structure(ax_init, punkt, elem, 1, first_index) # Plotter initalramme
- 
-    # Regner ut lengder til elementene
-    # elementlengder = lengder(punkt, elem, nelem) ## Gjøres i hvert objekt
+
+    #-----Leser inn verdier fra inputfil-----
+    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_portal.csv')
+
+    punkt = np.array(punkt)
+    elem = np.array(elem)
+    tverrsnitt = np.array(tverrsnitt)
+
 
     # Initialiserer liste med alle objektene
     
     tverrsnittOb = []
-    for i in range(len(tverrsnitt)):
-        tverrsnittOb.append(Tverrsnitt.Tverrsnitt(tverrsnitt[i]))
+    for tsnitt in tverrsnitt:
+        tverrsnittOb.append(Tverrsnitt.Tverrsnitt(tsnitt))
 
     punktOb = []
     for i in range(npunkt):
@@ -44,37 +46,27 @@ def main_test():
     for i in range(nlast):
         lastOb.append(Last.Last(i, last[i]))
  
-    # -----Fastinnspenningsmomentene------
-    # Lag funksjonen selv
+    # -----Fastinnspenningsreaksjoner og initialisering av lastvektor------
     fim = FastInnMom.FastInnMom(lastOb, elementOb, npunkt, nelem)
  
-    # -----Setter opp lastvektor-----
-    # Lag funksjonen selv
-    b = fim.fib
+    R = fim.fib # Lastvektor
 
-    print(b)
  
     # ------Setter opp systemstivhetsmatrisen-----
-    # Lag funksjonen selv
-    K = SysStiMat.SysStiMat(elementOb, nelem)
+    K = SysStiMat.SysStiMat(elementOb, npunkt)
+
  
     # ------Innfører randbetingelser------
-    # Lag funksjonen selv
-    K.randBet(elementOb)
+    K.randBet(punktOb, npunkt)
 
-    print(K.K)
  
     # -----Løser ligningssystemet------
-    # Lag funksjonen selv
-    rot = np.linalg.solve(K.K, -b)
-    print(rot)
-    # Hint, se side for løsing av lineære systemer i Python
+    rot = np.linalg.solve(K.K, R)
+
      
     #------Finner endemoment for hvert element-----
-    # Lag funksjonen selv
-    endemoment = EndeMom.EndeMom(elementOb, rot, fim).endeMom
+    endemoment = EndeMom.EndeMom(elementOb, rot).endeMom
 
-    print(endemoment)
  
     #-----Skriver ut hva rotasjonen ble i de forskjellige nodene-----
     print("Rotasjoner i de ulike punktene:")
@@ -84,13 +76,28 @@ def main_test():
     print("Elementvis endemoment:")
     print(endemoment)
 
+ 
+    #-----Plott ramme-----
+    plot_structure(ax_init, punkt, elem, 1, first_index) # Plotter initialramme
+
+    scaleRot = 10 # Skalerinng av rotasjoner
+    scaleTrans = 10 # Skalering av translasjoner
+
+    plot_structure_def(ax_def, punkt, elem, 1, first_index, rot, scaleRot, scaleTrans) # Plotter deformasjoner
+
+  
+    #-----Lager og plotter diagrammer-----
+    Diagrammer.Diagrammer(elementOb, endemoment, nelem)
+    
+    #-----Regner på kapasitet for hvert bjelkeelement-----
     kap = Kapasitet.Kapasitet(elementOb)
 
-    print(kap.kapasitet)
- 
-    #-----Plott deformert ramme-----
-    skalering = 100;     # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
-    plot_structure_def(ax_def, punkt, elem, 1, first_index, skalering*rot)
-    plt.show()
+    #-----Skriver ut kapasitet for bjelkene-----
+    for i, kp in enumerate(kap.kapasitet):
+        print(f'Bjelke: {elementOb[i].elem_n}, Tverrsnitt: {elementOb[i].tSnitt.type}, Kapasitet: {kp}')
 
-main_test()
+    plt.show() # Viser figurer
+
+    
+
+main()
