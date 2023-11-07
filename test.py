@@ -9,17 +9,18 @@ import SysStiMat
 import Tverrsnitt
 import EndeMom
 import Diagrammer
+import Kapasitet
 
 npunkt = 2
-punkt = np.array([np.array([0, 0, (1, 1, 0)], dtype=object), np.array([0, 10, (1, 1, 0)], dtype=object)], dtype=object) # Punkter på formen: (x, y, (innspenning x, innspenning y, momentinnspenning))
+punkt = np.array([np.array([0, 0, (1, 1, 0)], dtype=object), np.array([0, 1, (1, 1, 0)], dtype=object)], dtype=object) # Punkter på formen: (x, y, (innspenning x, innspenning y, momentinnspenning))
 nelem = 1
 elem = np.array([np.array([0, 0, 1, 1, 350])]) # Elementer på formen [elementnummer, globalt punkt 1, globalt punkt 2, tverrsnittype, flytspenning]
 nlast = 1
-last = np.array([np.array([1, 0, 0, 0, 10, 0, 1])])#, np.array([1, 0, np.array([0.5, 0]), 0, -90])], dtype=object)
+last = np.array([np.array([0, 0, 0.5, 1, 0, 0, 1])])#, np.array([1, 0, np.array([0.5, 0]), 0, -90])], dtype=object)
 # Last: [(Type last: 0 = punktlast,  1 = jevnt fordelt, 2 = trekant maks til høyre ytterst, 3 = trekant m/ maks venstre ytterst
 # 4 = trekant venstre maks innerst, 5 = trekant høyre maks innesrt , 6 = parabel, 7 = sinus), 
 # x1, y1, x2, y2, vinkel i grader, intensitet]
-tverrsnitt = np.array([np.array([0, 0.2, 0, 0.2, 0, 0, 0, 0, 0, 1, 210000000])])
+tverrsnitt = np.array([np.array([1, 0.2, 0, 0.2, 0, 0, 0, 0, 0, 1, 21000])])
 # [Index, H, h, B, b, R, r, T_stag, T_flens, Matr_type, E_modul]
 
 # -----Rammeanalyse-----
@@ -31,7 +32,7 @@ def main_test():
     fig_init, ax_init, fig_def, ax_def = setup_plots()  # Initialiserer figurer til visualiseringen
     first_index = 0 # Første index brukt
 
-    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil_portal.csv') # Leser input-data
+    npunkt, punkt, nelem, elem, nlast, last, tverrsnitt = lesinput.lesinput('Inputfil-endelig.csv') # Leser input-data
 
     punkt = np.array(punkt)
     elem = np.array(elem)
@@ -47,8 +48,8 @@ def main_test():
     # Initialiserer liste med alle objektene
     
     tverrsnittOb = []
-    for i in range(len(tverrsnitt)):
-        tverrsnittOb.append(Tverrsnitt.Tverrsnitt(tverrsnitt[i]))
+    for tsnitt in tverrsnitt:
+        tverrsnittOb.append(Tverrsnitt.Tverrsnitt(tsnitt))
 
     punktOb = []
     for i in range(npunkt):
@@ -61,6 +62,8 @@ def main_test():
     lastOb = []
     for i in range(nlast):
         lastOb.append(Last.Last(i, last[i]))
+
+    print(len(lastOb))
  
     # -----Fastinnspenningsmomentene------
     # Lag funksjonen selv
@@ -84,7 +87,7 @@ def main_test():
  
     # -----Løser ligningssystemet------
     # Lag funksjonen selv
-    rot = np.linalg.solve(K.K, -b)
+    rot = np.linalg.solve(K.K, b)
     # Hint, se side for løsing av lineære systemer i Python
      
     #------Finner endemoment for hvert element-----
@@ -104,12 +107,20 @@ def main_test():
     
  
     #-----Plott deformert ramme-----
-    scaleRot = 100 # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
-    scaleTrans = 100
+    scaleRot = 10 # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen
+    scaleTrans = 10
     plot_structure_def(ax_def, punkt, elem, 1, first_index, rot, scaleRot, scaleTrans)
   
     
     Diagrammer.Diagrammer(elementOb, endemoment, nelem)
+    
+    kap = Kapasitet.Kapasitet(elementOb)
+
+    print(kap.kapasitet)
+
+    for i, kp in enumerate(kap.kapasitet):
+        print(f'Bjelke: {elementOb[i].elem_n}, Tverrsnitt: {elementOb[i].tSnitt.type}, Kapasitet: {kp}')
+
     plt.show()
 
     

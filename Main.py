@@ -8,6 +8,7 @@ import FastInnMom
 import SysStiMat
 import Tverrsnitt
 import EndeMom
+import Kapasitet
 
 # -----Rammeanalyse-----
 def main_test():
@@ -65,7 +66,7 @@ def main_test():
  
     # -----Løser ligningssystemet------
     # Lag funksjonen selv
-    rot = np.linalg.solve(K.K, b)
+    rot = np.linalg.solve(K.K, -b)
     print(rot)
     # Hint, se side for løsing av lineære systemer i Python
      
@@ -82,6 +83,10 @@ def main_test():
     #-----Skriver ut hva momentene ble for de forskjellige elementene-----
     print("Elementvis endemoment:")
     print(endemoment)
+
+    kap = Kapasitet.Kapasitet(elementOb)
+
+    print(kap.kapasitet)
  
     #-----Plott deformert ramme-----
     skalering = 100;     # Du kan endre denne konstanten for å skalere de synlige deformasjonene til rammen

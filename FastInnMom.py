@@ -5,10 +5,10 @@ class FastInnMom:
     def dist(self, p1, p2, p3): # Finner avstanden fra linjen mellom to punkter (et element) til et punkt (angrepspunkt)
         return np.cross(p2-p1,p3-p1)/np.linalg.norm(p2-p1)
     
-    def isBetween(self, a, b, p):
-        x1, y1 = a
-        x2, y2 = b
-        x0, y0 = p
+    def isBetween(self, p1, p2, p3):
+        x1, y1 = p1
+        x2, y2 = p2
+        x0, y0 = p3
         
         is_x_between = (x1 <= x0 <= x2) or (x2 <= x0 <= x1)
         is_y_between = (y1 <= y0 <= y2) or (y2 <= y0 <= y1)
@@ -18,8 +18,7 @@ class FastInnMom:
     def fastInnKrefter(self, elem):
         M1, M2, q1, q2 = 0, 0, 0, 0
 
-        for last in elem.last: 
-            print(last.lastn)                            # Finner fastinnspenningsmoment for endepunktene til et element
+        for last in elem.last:                                        # Finner fastinnspenningsmoment for endepunktene til et element
             if not last.distLoad:                                      
                 phi = -last.angle + elem.angle                         # Intensitet på lasten
                 p = last.intencity * np.sin(phi)                     # Lastens vinkel på alement
@@ -27,13 +26,15 @@ class FastInnMom:
                 b = np.linalg.norm(last.attackPoint - elem.P2.punkt) # Avstand fra last til P2
                 L = elem.L                                        # Elementlengde
 
-                M1 += -(p * a * b**2)/L                       # Fast innspenningsmoment i P1 (Globalt knutepunkt nr. index1)
-                M2 += (p * a**2 * b)/L
-                q1 += -(-M1 - M2 + p  * b)/L        # FINNE UT AV MINUSEN HER!!!
-                q2 += p - q1
+                M1 += -(p * a * b**2)/L**2                       # Fast innspenningsmoment i P1 (Globalt knutepunkt nr. index1)
+                M2 += (p * a**2 * b)/L**2
+                q = (-M1 - M2 + p  * b)/L        # FINNE UT AV MINUSEN HER!!!
+                q2 += p - q
+                q1 += q
 
             else:
                 phi = -last.angle + elem.angle
+                #print(f'Lastnummer: {last.lastn}, lasttype: {last.type}')
                 p = last.intencity * np.sin(phi) # Ser bare på kreftene normalt på elementene
                 L = elem.L 
                 a = np.linalg.norm(last.startPoint - elem.P1.punkt) # Avtand fra last til P1
@@ -42,16 +43,26 @@ class FastInnMom:
                 #print(p)
 
                 if last.type == 1:
-                    M1 += -((s+a)**2 * (6*b**2+4*b*(s+a)+(s+a)**2) + s**2*(6*(s+b)**2+4*a*(s+b)+a**2))*p/(12*L**2)
-                    M2 += ((s+b)**2 * (6*a**2+4*a*(s+b)+(s+b)**2) + s**2*(6*(s+a)**2+4*b*(s+a)+b**2))*p/(12*L**2)
-                    q1 += (-M1 - M2 + s*p*(s/2+b))/L
-                    q2 += s * p - q1
+                    #M1 += -((s+a)**2 * (6*b**2+4*b*(s+a)+(s+a)**2) + s**2*(6*(s+b)**2+4*a*(s+b)+a**2))*p/(12*L**2)
+                    M1 += -(p*(s+a)**2)/(12*L**2)*(6*b**2 + 4*b*(s+a) + (s+a)**2) + (p*a**2)/(12*L**2)*(6*(s+b)**2 + 4*(s+b)+a**2)
+                    #M2 += ((s+b)**2 * (6*a**2+4*a*(s+b)+(s+b)**2) + s**2*(6*(s+a)**2+4*b*(s+a)+b**2))*p/(12*L**2)
+                    M2 += (p*(s+a)**2)/(12*L**2) * (4*b + s + a) - (p*a**3)/(12*L**2) * (4*(s+b) + a)
+                    q = (-M1 - M2 + s*p*(s/2+b))/L
+                    q2 += s * p - q
+                    q1 += q
+
 
                 elif last.type == 2:
-                    M1 += -(p*s**3)/(60*L)*(5-3*s/L)
-                    M2 += (p*s**2)/(60) * (10 - 10*s/L + 3*s**2/L**2)
-                    q1 += (-M1 + M2 + s**2/6)/L
-                    q2 += s * p/2 - q1
+                    #M1 += -(p*s**3)/(60*L)*(5-3*s/L)
+                    M1 += -1/30 *p * L**2
+                    #M2 += (p*s**2)/(60) * (10 - 10*s/L + 3*s**2/L**2)
+                    M2 += 1/20 * p * L**2
+
+                    q = (-M1 - M2 + s**2/6)/L
+                    q2 += s * p/2 - q
+                    q1 += q
+
+                    #print('brukes')
 
                 elif last.type == 3:
                     M1 += -(p*s**2)/(60) * (10 - 10*s/L + 3*s**2/L**2)
@@ -83,10 +94,10 @@ class FastInnMom:
                     q1 += p/(np.pi * 2* L)
                     q2 += q1
 
-        return [0, q1, M1, 0, q2, M2]
-
-    def __init__(self, lastOb, elemOb, npunkt, nelem):
-        self.fib = np.zeros(npunkt * 3)
+        #print(np.array([0, q1, M1, 0, q2, M2]))
+        return np.array([0, q1, M1, 0, q2, M2])
+    
+    def finnLaster(self, lastOb, elemOb, nelem):
 
         for i in range(len(lastOb)):    # Ønsker å sjekke om en last virker på et elemnt, for så å legge inn par i 'pairs'.
             if not lastOb[i].distLoad:  # Hvis ikke fordelt last
@@ -117,20 +128,20 @@ class FastInnMom:
                         # print(elemOb[j].elem_n)
                         # print(lastOb[i].lastn)
 
-        # for pair in self.pairs:
-        #     elem = elem
-        #     print(f'Elementnummer: {elem.elem_n}, lastnummer: {last.lastn}')
-        #     s = elem.transformToGlobal(self.fibPair(pair))
+    def __init__(self, lastOb, elemOb, npunkt, nelem):
+        self.fib = np.zeros(npunkt * 3)
 
-        #     for i in range(6):
-        #         self.fib[elem.indexFromKtab(i)] += s[i]
+        self.finnLaster(lastOb, elemOb, nelem)
 
         for elem in elemOb:
             if elem.harLast():
-                s = elem.transformToGlobal(self.fastInnKrefter(elem))
+                s = self.fastInnKrefter(elem)
+                sThat = elem.transformToGlobal(s)
+
+                elem.fastInnMom = s
 
                 for i in range(6):
-                    self.fib[elem.indexFromKtab(i)] += s[i]
+                    self.fib[elem.indexFromKtab(i)] -= sThat[i]
 
 
     

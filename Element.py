@@ -3,10 +3,13 @@ import Last
 
 class Element:
 
-    V = np.zeros(6)
-
     def harLast(self):
         return self.last != []
+    
+    def finnTverrsnitt(self, tverrOb, tsnitt):
+        for row in tverrOb:
+            if row.type == tsnitt:
+                return row
     
 
     def __init__(self, n, elemRow, PunktOb, tverrsnittOb):
@@ -14,10 +17,11 @@ class Element:
         self.P1 = PunktOb[int(elemRow[1])]  # Globalt knutepunkt av typen Punkt for ende 1
         self.P2 = PunktOb[int(elemRow[2])]  # Globalt knutepunkt av typen Punkt for ende 2           # E-modul
         self.tType = elemRow[3]             # Tverrsnittype, 1 = I-profil og 2 = rundprofil
-        self.tSnitt = tverrsnittOb[int(self.tType)-1]
+        self.tSnitt = self.finnTverrsnitt(tverrsnittOb, self.tType)
         self.E = self.tSnitt.E              # E-modul
+        self.f_y = elemRow[-1]
 
-        self.L = np.linalg.norm(self.P1.punkt - self.P2.punkt) # Finner lengden til elementene med Pytagoras
+        self.L = np.linalg.norm(self.P1.punkt - self.P2.punkt) # Finner lengden til elementene
         self.angle = np.arctan2((self.P2.punkt[1]-self.P1.punkt[1]),(self.P2.punkt[0]-self.P1.punkt[0])) 
 
         A = self.tSnitt.A
@@ -45,6 +49,9 @@ class Element:
                               np.array([5, self.P2, 3 * (self.P2.punktn) + 2])])
         
         self.last = []
+        self.fastInnMom = np.zeros(6)
+
+        self.M, self.V, self.N = np.array([]), np.array([]), np.array([])
 
         self.rotMat = np.array([np.array([np.cos(self.angle) , np.sin(self.angle) , 0, 0                  , 0                  , 0]),
                                 np.array([-np.sin(self.angle), np.cos(self.angle) , 0, 0                  , 0                  , 0]),
@@ -55,15 +62,6 @@ class Element:
 
     def indexFromKtab(self, index):
         return self.kTab[:, 2][index]
-
-
-    # def rotMat(self, angle): # Definerer rotasjonsmatrisa for å transformere koordinatsystemene
-    #     return np.array([np.array([np.cos(angle) , np.sin(angle) , 0, 0             , 0             , 0]),
-    #                      np.array([-np.sin(angle), np.cos(angle) , 0, 0             , 0             , 0]),
-    #                      np.array([0             , 0             , 1, 0             , 0             , 0]),
-    #                      np.array([0             , 0             , 0, np.cos(angle) , np.sin(angle) , 0]),
-    #                      np.array([0             , 0             , 0, -np.sin(angle), np.cos(angle) , 0]),
-    #                      np.array([0             , 0             , 0, 0             , 0             , 1])])
 
     def transformFromGlobal(self, array): # Definerer transformasjon fra globale til lokale koordinater
         return np.matmul(self.rotMat, array)

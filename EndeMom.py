@@ -8,16 +8,13 @@ class EndeMom:
 
         for elem in elemOb:
             V_that = []
-            S_that = []
 
             for i in range (6):
                 V_that.append(rot[elem.indexFromKtab(i)])
-                S_that.append(fim.fib[elem.indexFromKtab(i)])
 
-            V_that = np.array(elem.transformFromGlobal(V_that))
-            S_that = np.array(elem.transformFromGlobal(S_that))
+            V = np.array(elem.transformFromGlobal(V_that))
 
-            S = np.matmul(elem.k, V_that) + S_that
+            S = np.matmul(elem.k, V) + elem.fastInnMom
 
             self.endeMom.append(S)
             

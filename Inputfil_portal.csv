@@ -1,4 +1,4 @@
-Antall Nodes;4;Antall Laster;1;;;;;;;
+Antall Nodes;4;Antall Laster;2;;;;;;;
 Antall Beams;3;Antall tverrsnitt;__;Grader -> radianer;0,02;;;;;
 ;Node ID;x;y;Fx;Fy;M;;;;
 Node;0;0;0;1;1;1;;;;
@@ -8,17 +8,18 @@ Node;3;10;0;1;1;1;;;;
 ;;;;;;;;;;
 ;;;;;;;;;;
 ;;Beam ID;Node 1; Node 2;Geo 1=Boks, 2=R�r, 3=I-profil;fy;;;;
-Beam;0;0;1;2;420;;;;
-Beam;1;1;2;2;420;;;;
-Beam;2;2;3;2;420;;;;
+Beam;0;0;1;1;420;;;;
+Beam;1;1;2;1;420;;;;
+Beam;2;2;3;1;420;;;;
 ;;;;;;;;;;
 ;;;;;;;;;0= Gjevnt, 1= trekant med maks h�yre, 2= trekant med maks venstre, 3= trekant med maks innerst, 4= med min innerst, 5= parabel, 6= sinuskurve;
 ;Type frdelt;x1;y1;x2;y2;;Vinkel;intensitet;;
-Punktlast 1;0;0;5;0;0;0;100;;;;
+Punktlast 1;0;0;5;0;0;0;200;;;;
+Punktlast 1;0;0;7.5;0;0;0;200;;;;
 ;;;;;;;;;;
 ;;;;;;;;;;
  1=Boks, 2=R�r, 3=I-profil;;;;;;;;;;
-Geo;B;b;H;h;R;r;t_steg;t_flens;Mat type;E_modul
-1;0.12;0;1;0;0;0;0;0;1;21000000
-2;0.12;0;1;0;0;0;0;0;1;21000000
-3;0.3;0.2;0.6;0;0;0;0;0;1;2100
+Geo element;Geo;B;b;H;h;R;r;t_steg;t_flens;q valg;E-Modul;intensitet (2R*q)
+Toppbygg;1;1;0.8000;1;0.8000;0;0;0;0;0;7000000;0
+Stor R�rprofil. q1;2;0;0;0;0;1;0.8000;0;0;1;210000000000;720000
+Stor R�rprofil. q2;2;0;0;0;0;1;0.8000;0;0;2;210000000000;240000
